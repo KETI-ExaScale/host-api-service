@@ -1,0 +1,9 @@
+/vendor
+/vendor/**
+
+/build/bin
+/build/bin/**
+
+
+/build/_output
+/build/_output/**

@@ -1,0 +1,10 @@
+[Unit]
+Description=Exascale HostAPIService
+Documentation=https://github.com/KETI-ExaScale/host-api-service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/local/.keti/host-api-service
+
+[Install]
+WantedBy=multi-user.target
