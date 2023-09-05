@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package grpc;
+
+option go_package = "host-api-service/pkg/api";
+
+service Traveler {
+    rpc Node(Request) returns (Response);
+    rpc Delete(DockerRequest) returns(DockerResponse);
+}
+
+message Request {
+    string clusterName = 1;
+}
+
+message Response {
+    string ClusterName = 1;
+    string NodeName = 2;
+    int32 GPU = 3;
+}
+
+message DockerRequest {
+    string dockerid = 1;
+}
+
+message DockerResponse {
+}

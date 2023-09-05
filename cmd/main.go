@@ -1,7 +1,7 @@
 package main
 
-import "host-api-service/pkg/unixsock"
+import "host-api-service/pkg/api"
 
 func main() {
-	unixsock.CreateSocket()
+	api.StartServer()
 }
