@@ -18,7 +18,7 @@ type TravelServer struct {
 	UnsafeTravelerServer
 }
 
-func (*TravelServer) Node(ctx context.Context, req *Request) (*Response, error) {
+func (*TravelServer) Node(ctx context.Context, req *NodeRequest) (*NodeResponse, error) {
 	nodeName := os.Getenv("HOSTNAME")
 	clusterName := string(req.GetClusterName())
 	gpuCount := int32(0)
@@ -29,7 +29,7 @@ func (*TravelServer) Node(ctx context.Context, req *Request) (*Response, error) 
 		gpuCount = 0
 	}
 
-	responseStruct := &Response{
+	responseStruct := &NodeResponse{
 		ClusterName: clusterName,
 		NodeName:    nodeName,
 		GPU:         gpuCount,
@@ -54,6 +54,24 @@ func (*TravelServer) Delete(ctx context.Context, req *DockerRequest) (*DockerRes
 	}
 
 	return &DockerResponse{}, nil
+}
+
+func (*TravelServer) NodeGPUInfo(ctx context.Context, req *NodeGPURequest) (*NodeGPUResponse, error) {
+
+	gpuCount := int32(0)
+
+	if traveler.IsGPUNode() {
+		gpuCount = int32(traveler.GetGPUs())
+	} else {
+		gpuCount = 0
+	}
+
+	responseStruct := &NodeGPUResponse{
+		GPU:   gpuCount,
+		IsGPU: traveler.IsGPUNode(),
+	}
+
+	return responseStruct, nil
 }
 
 func StartServer() {

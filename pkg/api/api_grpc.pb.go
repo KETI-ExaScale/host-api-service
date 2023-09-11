@@ -22,8 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TravelerClient interface {
-	Node(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	Node(ctx context.Context, in *NodeRequest, opts ...grpc.CallOption) (*NodeResponse, error)
 	Delete(ctx context.Context, in *DockerRequest, opts ...grpc.CallOption) (*DockerResponse, error)
+	NodeGPUInfo(ctx context.Context, in *NodeGPURequest, opts ...grpc.CallOption) (*NodeGPUResponse, error)
 }
 
 type travelerClient struct {
@@ -34,8 +35,8 @@ func NewTravelerClient(cc grpc.ClientConnInterface) TravelerClient {
 	return &travelerClient{cc}
 }
 
-func (c *travelerClient) Node(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
-	out := new(Response)
+func (c *travelerClient) Node(ctx context.Context, in *NodeRequest, opts ...grpc.CallOption) (*NodeResponse, error) {
+	out := new(NodeResponse)
 	err := c.cc.Invoke(ctx, "/grpc.Traveler/Node", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,12 +53,22 @@ func (c *travelerClient) Delete(ctx context.Context, in *DockerRequest, opts ...
 	return out, nil
 }
 
+func (c *travelerClient) NodeGPUInfo(ctx context.Context, in *NodeGPURequest, opts ...grpc.CallOption) (*NodeGPUResponse, error) {
+	out := new(NodeGPUResponse)
+	err := c.cc.Invoke(ctx, "/grpc.Traveler/NodeGPUInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TravelerServer is the server API for Traveler service.
 // All implementations must embed UnimplementedTravelerServer
 // for forward compatibility
 type TravelerServer interface {
-	Node(context.Context, *Request) (*Response, error)
+	Node(context.Context, *NodeRequest) (*NodeResponse, error)
 	Delete(context.Context, *DockerRequest) (*DockerResponse, error)
+	NodeGPUInfo(context.Context, *NodeGPURequest) (*NodeGPUResponse, error)
 	mustEmbedUnimplementedTravelerServer()
 }
 
@@ -65,11 +76,14 @@ type TravelerServer interface {
 type UnimplementedTravelerServer struct {
 }
 
-func (UnimplementedTravelerServer) Node(context.Context, *Request) (*Response, error) {
+func (UnimplementedTravelerServer) Node(context.Context, *NodeRequest) (*NodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Node not implemented")
 }
 func (UnimplementedTravelerServer) Delete(context.Context, *DockerRequest) (*DockerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedTravelerServer) NodeGPUInfo(context.Context, *NodeGPURequest) (*NodeGPUResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NodeGPUInfo not implemented")
 }
 func (UnimplementedTravelerServer) mustEmbedUnimplementedTravelerServer() {}
 
@@ -85,7 +99,7 @@ func RegisterTravelerServer(s grpc.ServiceRegistrar, srv TravelerServer) {
 }
 
 func _Traveler_Node_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
+	in := new(NodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -97,7 +111,7 @@ func _Traveler_Node_Handler(srv interface{}, ctx context.Context, dec func(inter
 		FullMethod: "/grpc.Traveler/Node",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TravelerServer).Node(ctx, req.(*Request))
+		return srv.(TravelerServer).Node(ctx, req.(*NodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -120,6 +134,24 @@ func _Traveler_Delete_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Traveler_NodeGPUInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeGPURequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TravelerServer).NodeGPUInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.Traveler/NodeGPUInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TravelerServer).NodeGPUInfo(ctx, req.(*NodeGPURequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Traveler_ServiceDesc is the grpc.ServiceDesc for Traveler service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Traveler_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _Traveler_Delete_Handler,
+		},
+		{
+			MethodName: "NodeGPUInfo",
+			Handler:    _Traveler_NodeGPUInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

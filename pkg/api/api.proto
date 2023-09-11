@@ -5,15 +5,16 @@ package grpc;
 option go_package = "host-api-service/pkg/api";
 
 service Traveler {
-    rpc Node(Request) returns (Response);
+    rpc Node(NodeRequest) returns (NodeResponse);
     rpc Delete(DockerRequest) returns(DockerResponse);
+    rpc NodeGPUInfo(NodeGPURequest) returns(NodeGPUResponse);
 }
 
-message Request {
+message NodeRequest {
     string clusterName = 1;
 }
 
-message Response {
+message NodeResponse {
     string ClusterName = 1;
     string NodeName = 2;
     int32 GPU = 3;
@@ -24,4 +25,11 @@ message DockerRequest {
 }
 
 message DockerResponse {
+}
+
+message NodeGPURequest {}
+
+message NodeGPUResponse {
+    int32 GPU = 1;
+    bool IsGPU = 2;
 }
